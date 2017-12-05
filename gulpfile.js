@@ -12,19 +12,26 @@ const revCollector = require('gulp-rev-collector');               //- 路径替�
 const runSequence = require('run-sequence');//控制task顺序
 const del = require('del');
 
-/*const connect = require("gulp-connect");
-var plugins = require('gulp-load-plugins')();*/
-
+gulp.task('clean', function (cb) {
+   return  del([
+        'dist'
+    ], cb);
+});
+gulp.task('cleanCss', function (cb) {
+   return  del([
+        'dist/css'
+    ], cb);
+});
 
 //编译less
-gulp.task('less',function(){
+gulp.task('less',['cleanCss'],function(){
     return gulp.src("./src/*.less")
         .pipe(less())
         .pipe(gulp.dest('./src/'))
 });
 
 //自动加css前缀  压缩
-gulp.task('minifyautocss',['less'], function () {
+gulp.task('minifyautocss', function () {
     return gulp.src("./src/*.css")
         .pipe(autoprefix(
             'last 2 versions',
@@ -50,14 +57,14 @@ gulp.task('rev', function() {
 });
 
 //压缩js
-gulp.task('minify-js', function () {
+gulp.task('minify-js',function () {
     return gulp.src("./src/*.js")
     .pipe(uglify())
     .pipe(gulp.dest("./dist/js"))
 });
 
 //压缩html
-gulp.task('minify-html', function () {
+gulp.task('minify-html',["rev"], function () {
     return gulp.src("./dist/index.html")
         .pipe(minifyHtml())
         .pipe(gulp.dest("./dist"))
@@ -66,10 +73,9 @@ gulp.task('minify-html', function () {
 //create dev server
 gulp.task('server',function(){
     gulp.watch('./src/*.js',['minify-js']);
-    gulp.watch('./src/*.less',['less']);
+    gulp.watch('./src/*.less',["less"]);
     gulp.watch('./src/*.css',['minifyautocss']);
     gulp.watch(['./dist/rev/*.json', './src/index.html'],['rev']);
-    gulp.watch('./dist/*.html',['minify-html']);
     return gulp.src('./')
         .pipe(server({
             open:"dist/index.html",
@@ -87,12 +93,12 @@ gulp.task('server',function(){
             port:"8888"
         }))
 });
-gulp.task('default',function (callback) {
+
+gulp.task('default',['clean'],function (callback) {
     runSequence(
         'minify-js',
         "minifyautocss",
         "rev",
-        "minify-html",
         "server",
         callback);
 });

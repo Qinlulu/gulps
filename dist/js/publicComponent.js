@@ -1,0 +1,1 @@
+new iScroll("#wrapper",{bounce:!0,scrollbars:!0,bounceLock:!0,momentum:!0,hScrollbar:!1,vScrollbar:!1,snap:"li",zoom:"2",doubleTapZoom:"2"});
